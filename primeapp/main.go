@@ -20,7 +20,7 @@ func isPrime(n int) (bool, string) {
 
 	for i := 2; i <= n/2; i++ {
 		if n%i == 0 {
-			return false, fmt.Sprintf("%d is not a prime number because visible by %d", n, i)
+			return false, fmt.Sprintf("%d is not a prime number because divisible by %d", n, i)
 		}
 	}
 
