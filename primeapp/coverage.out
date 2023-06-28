@@ -4,11 +4,11 @@ primeapp/testing_course/primeapp/main.go:24.40,26.6 2 0
 primeapp/testing_course/primeapp/main.go:26.6,29.11 2 0
 primeapp/testing_course/primeapp/main.go:29.11,32.4 2 0
 primeapp/testing_course/primeapp/main.go:33.3,34.11 2 0
-primeapp/testing_course/primeapp/main.go:38.58,40.44 2 0
-primeapp/testing_course/primeapp/main.go:40.44,42.3 1 0
-primeapp/testing_course/primeapp/main.go:43.2,45.16 2 0
-primeapp/testing_course/primeapp/main.go:45.16,47.3 1 0
-primeapp/testing_course/primeapp/main.go:49.2,50.19 2 0
+primeapp/testing_course/primeapp/main.go:38.58,40.44 2 1
+primeapp/testing_course/primeapp/main.go:40.44,42.3 1 1
+primeapp/testing_course/primeapp/main.go:43.2,45.16 2 1
+primeapp/testing_course/primeapp/main.go:45.16,47.3 1 1
+primeapp/testing_course/primeapp/main.go:49.2,50.19 2 1
 primeapp/testing_course/primeapp/main.go:53.14,58.2 4 1
 primeapp/testing_course/primeapp/main.go:60.15,62.2 1 1
 primeapp/testing_course/primeapp/main.go:64.36,66.22 1 1

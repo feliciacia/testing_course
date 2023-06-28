@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"io"
 	"os"
 	"strings"
@@ -60,5 +61,34 @@ func Test_intro(t *testing.T) {
 	out, _ := io.ReadAll(r)                                     //read the output of prompt func from read pipe
 	if !strings.Contains(string(out), "Enter a whole number") { //strings.Contains() contains substr of string means true but sensitive with upper/lower case
 		t.Errorf("intro text not correct; got %s", string(out))
+	}
+}
+
+func Test_checkNumbers(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{name: "empty", input: "", expected: "Please enter a whole number!"},
+		{name: "zero", input: "0", expected: "0 is not a prime number"},
+		{name: "one", input: "1", expected: "1 is not a prime number"},
+		{name: "two", input: "2", expected: "2 is a prime number"},
+		{name: "three", input: "3", expected: "3 is a prime number"},
+		{name: "negative", input: "-1", expected: "negative numbers are not prime number"},
+		{name: "typed", input: "three", expected: "Please enter a whole number!"},
+		{name: "decimal", input: "1.1", expected: "Please enter a whole number!"},
+		{name: "quit", input: "q", expected: ""},
+		{name: "QUIT", input: "Q", expected: ""},
+		{name: "greek", input: "αεφπ", expected: "Please enter a whole number!"},
+	}
+	for _, e := range tests {
+		input := strings.NewReader(e.input) //convert to string so can be read
+		reader := bufio.NewScanner(input)   //input from command
+		res, _ := checkNumbers(reader)
+
+		if !strings.EqualFold(res, e.expected) { //equalfold= compared s1 and s2 must all equal but no sensitive with upper/lowercase
+			t.Errorf("%s: expected %s, but got %s", e.name, e.expected, res)
+		}
 	}
 }
