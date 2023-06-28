@@ -11,11 +11,14 @@ import (
 func main() {
 	intro()
 
-	doneChan := make(chan bool)
+	doneChan := make(chan bool) //create channel
 
-	go readUserInput(doneChan)
-
+	go readUserInput(doneChan) //start go routine to read user input
+	//block until doneChan gets the value
 	<-doneChan
+
+	close(doneChan)
+	fmt.Println("Goodbye.")
 }
 
 func readUserInput(doneChan chan bool) {
