@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -44,7 +45,20 @@ func Test_prompt(t *testing.T) {
 	_ = w.Close()             // close writer
 	os.Stdout = oldout        //reset
 	out, _ := io.ReadAll(r)   //read the output of prompt func from read pipe
-	if string(out) != "-> " { //perform test //use string func cuz return as slice of byte
+	if string(out) != "-> " { //perform test //convert to string func cuz ReadAll return as slice of byte
 		t.Errorf("incorrect prompt: expected -> but got %s", string(out))
+	}
+}
+
+func Test_intro(t *testing.T) {
+	oldout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	intro()
+	_ = w.Close()                                               // close writer
+	os.Stdout = oldout                                          //reset
+	out, _ := io.ReadAll(r)                                     //read the output of prompt func from read pipe
+	if !strings.Contains(string(out), "Enter a whole number") { //strings.Contains() contains substr of string means true but sensitive with upper/lower case
+		t.Errorf("intro text not correct; got %s", string(out))
 	}
 }
