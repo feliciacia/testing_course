@@ -1,8 +1,10 @@
 package routes
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -53,5 +55,18 @@ func Test_addIPToContext(t *testing.T) {
 
 		//call the handler so dummy handler can perform the test
 		handlertotest.ServeHTTP(httptest.NewRecorder(), req)
+	}
+}
+
+func Test_ipfromcontext(t *testing.T) {
+	var app Application
+	//get context
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, ContextUserKey, "go")
+	//call the function
+	ip := app.ipFromContext(ctx)
+	//perform test
+	if !strings.EqualFold("go", ip) {
+		t.Error("wrong value returned from context")
 	}
 }
