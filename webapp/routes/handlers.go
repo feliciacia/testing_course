@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"html/template"
 	"net/http"
-	"text/template"
 )
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +15,8 @@ type TemplateData struct {
 }
 
 func (app *Application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
-	parsedTemplate, err := template.ParseFiles("./templates/" + t) //parse template from disk
+	parsedTemplate, err := template.ParseFiles("../templates/" + t) //parse template from disk
+
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return err
@@ -23,6 +24,7 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, t string,
 
 	//execute template and pass the data
 	err = parsedTemplate.Execute(w, data)
+
 	if err != nil {
 		return err
 	}
