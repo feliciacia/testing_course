@@ -21,8 +21,6 @@ func Test_addIPToContext(t *testing.T) {
 		{"", "", "hello:world", false},
 	}
 
-	var app Application
-
 	//create a dummy handler that use to check the context
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//make sure the value exist
@@ -39,7 +37,7 @@ func Test_addIPToContext(t *testing.T) {
 	})
 	for _, e := range tests {
 		//create handler to test
-		handlertotest := app.addIPToContext(nextHandler)
+		handlertotest := main.app.addIPToContext(nextHandler)
 		req := httptest.NewRequest("GET", "http://testing", nil)
 		if e.emptyAddr {
 			req.RemoteAddr = ""
@@ -59,7 +57,6 @@ func Test_addIPToContext(t *testing.T) {
 }
 
 func Test_ipfromcontext(t *testing.T) {
-	var app Application
 	//get context
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, ContextUserKey, "go")

@@ -20,7 +20,7 @@ type TemplateData struct {
 }
 
 func (app *Application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
-	parsedTemplate, err := template.ParseFiles(path.Join(pathtoTemplate, t))
+	parsedTemplate, err := template.ParseFiles(path.Join(pathtoTemplate, t), path.Join(pathtoTemplate, "base.layout.gohtml"))
 
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -44,10 +44,18 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+	form := NewForm(r.PostForm)
+	form.Required("email", "password")
+
+	if !form.Valid() {
+		fmt.Fprint(w, "failed validation")
+		return
+	}
+
 	email := r.Form.Get("email") //"email" declared at html
 
 	password := r.Form.Get("password")
 
 	log.Println(email, password)
-	fmt.Fprintf(w, email)
+	fmt.Fprint(w, email)
 }
