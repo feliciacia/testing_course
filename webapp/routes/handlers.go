@@ -6,11 +6,19 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"time"
 )
 
 var pathtoTemplate = "../templates/"
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
+	var td = make(map[string]any)
+	if app.Session.Exists(r.Context(), "test") {
+		msg := app.Session.GetString(r.Context(), "test")
+		td["test"] = msg
+	} else {
+		app.Session.Put(r.Context(), "test", "Hit this page at"+time.Now().UTC().String())
+	}
 	_ = app.render(w, r, "home.page.gohtml", &TemplateData{})
 }
 

@@ -8,10 +8,9 @@ import (
 
 func main() {
 	app := &routes.Application{}
-	mux := app.Routes()
-	app.Session = getSession()
+	app.Session = routes.GetSession()
 	log.Println("Starting server on port 8080...")
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8080", app.Routes())
 	if err != nil {
 		log.Fatal(err)
 	}
