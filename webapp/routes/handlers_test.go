@@ -25,7 +25,6 @@ func Test_handlers(t *testing.T) {
 		{"home", "/", http.StatusOK},
 		{"404", "/notfound", http.StatusNotFound},
 	}
-	pathtoTemplate = "./../templates/"
 	for _, e := range theTest {
 		resp, err := ts.Client().Get(ts.URL + e.url)
 		if err != nil {
@@ -35,24 +34,6 @@ func Test_handlers(t *testing.T) {
 		if resp.StatusCode != e.statuscode {
 			t.Errorf("for %s: expected status %d, but got %d", e.name, e.statuscode, resp.StatusCode)
 		}
-	}
-}
-
-func Test_Home_Old(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/", nil)
-	var app Application
-	app.Session = GetSession()
-	req = AddContextAndSessionToRequest(req, app)
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(app.Home)
-	handler.ServeHTTP(rr, req)
-
-	if rr.Code != http.StatusOK {
-		t.Errorf("TestHome returned wrong status code; expected 200 but got %d", rr.Code)
-	}
-	body, _ := io.ReadAll(rr.Body)
-	if !strings.Contains(string(body), `<small>From Session =`) {
-		t.Error("did not find correct text in html")
 	}
 }
 
@@ -84,6 +65,25 @@ func Test_Home(t *testing.T) {
 		if !strings.Contains(string(body), e.expectedHTML) {
 			t.Errorf("%s: did not find %s in response body", e.name, e.expectedHTML)
 		}
+	}
+}
+
+func Test_render_with_bad_template(t *testing.T) {
+	PathtoTemplate = "./testdata/"
+
+	var app Application
+	app.Session = GetSession()
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	req = AddContextAndSessionToRequest(req, app)
+	rr := httptest.NewRecorder()
+
+	err := app.render(rr, req, "bad.page.gohtml", &TemplateData{})
+	if err == nil { //expect error but said no error
+		t.Error("expected error from bad template, but did not get one")
+	}
+	if rr.Code != http.StatusBadRequest {
+		t.Error("expect bad request but not getting the bad request")
 	}
 }
 

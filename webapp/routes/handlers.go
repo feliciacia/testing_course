@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var pathtoTemplate = "./templates/"
+var PathtoTemplate = "../templates/"
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 	td := make(map[string]interface{})
@@ -32,7 +32,7 @@ type TemplateData struct {
 }
 
 func (app *Application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
-	parsedTemplate, err := template.ParseFiles(path.Join(pathtoTemplate, t), path.Join(pathtoTemplate, "base.layout.gohtml"))
+	parsedTemplate, err := template.ParseFiles(path.Join(PathtoTemplate, t), path.Join(PathtoTemplate, "base.layout.gohtml"))
 
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -52,7 +52,6 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, t string,
 func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
