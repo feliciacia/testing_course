@@ -3,7 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
-	"primeapp/testing_course/webapp/routes"
+
+	"github.com/felicia/testing_course/webapp/routes"
 )
 
 func main() {
@@ -15,3 +16,4 @@ func main() {
 		log.Fatal(err)
 	}
 }
+ 

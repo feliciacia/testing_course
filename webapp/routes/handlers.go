@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var pathtoTemplate = "../templates/"
+var pathtoTemplate = "./templates/"
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 	var td = make(map[string]any)

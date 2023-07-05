@@ -20,7 +20,7 @@ func Test_has(t *testing.T) {
 	if !has {
 		t.Error("form shows that does not have field when it should")
 	}
-}
+} 
 
 func Test_required(t *testing.T) {
 	r := httptest.NewRequest("POST", "/request", nil) //1 st scenario
