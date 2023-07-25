@@ -85,6 +85,7 @@ func Test_render_with_bad_template(t *testing.T) {
 	if rr.Code != http.StatusBadRequest {
 		t.Error("expect bad request but not getting the bad request")
 	}
+	PathtoTemplate = "../templates/"
 }
 
 func Get_Context(req *http.Request) context.Context {
