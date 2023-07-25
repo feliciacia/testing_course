@@ -20,8 +20,8 @@ func main() {
 	defer conn.Close()
 	app.DB = db.PostgresConn{DB: conn}
 	app.Session = routes.GetSession()
-	log.Println("Starting server on port 8080...")
-	err = http.ListenAndServe(":8080", app.Routes())
+	log.Println("Starting server on port 8000...")
+	err = http.ListenAndServe(":8000", app.Routes())
 	if err != nil {
 		log.Fatal(err)
 	}

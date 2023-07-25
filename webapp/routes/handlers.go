@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -24,6 +23,10 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 		Data: td,
 	}
 	_ = app.render(w, r, "home.page.gohtml", data)
+}
+
+func (app *Application) Profile(w http.ResponseWriter, r *http.Request) {
+	_ = app.render(w, r, "profile.page.gohtml", &TemplateData{})
 }
 
 type TemplateData struct {
@@ -59,7 +62,9 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	form.Required("email", "password")
 
 	if !form.Valid() {
-		fmt.Fprint(w, "failed validation")
+		//redirect to login page with error message
+		app.Session.Put(r.Context(), "error", "Invalid login credentials") //including error message
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -70,10 +75,17 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := app.DB.GetUserByEmail(email)
 
 	if err != nil {
-		log.Println(err)
+		app.Session.Put(r.Context(), "error", "Invalid login") //error message for no email
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
-	log.Println("From database:", user.FirstName)
+	log.Println(password, user.FirstName)
+	//authenticate
+	//if not authenticate then redirect with error
+	//prevent fixation attack //regenerate session
+	_ = app.Session.RenewToken(r.Context())
 
-	log.Println(email, password)
-	fmt.Fprint(w, email)
+	app.Session.Put(r.Context(), "flash", "successfully log in")
+	//redirect to other page
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 }
