@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"path"
 	"time"
+
+	"github.com/felicia/testing_course/webapp/pkg/data"
 )
 
 var PathtoTemplate = "../templates/"
@@ -18,11 +20,11 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 	} else {
 		app.Session.Put(r.Context(), "test", "Hit this page at"+time.Now().UTC().String())
 	}
-	data := &TemplateData{
+	templateData := &TemplateData{
 		IP:   app.ipFromContext(r.Context()),
 		Data: td,
 	}
-	_ = app.render(w, r, "home.page.gohtml", data)
+	_ = app.render(w, r, "home.page.gohtml", templateData)
 }
 
 func (app *Application) Profile(w http.ResponseWriter, r *http.Request) {
@@ -30,11 +32,14 @@ func (app *Application) Profile(w http.ResponseWriter, r *http.Request) {
 }
 
 type TemplateData struct {
-	IP   string
-	Data map[string]any
+	IP    string
+	Data  map[string]interface{}
+	Error string
+	Flash string
+	User  data.User
 }
 
-func (app *Application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
+func (app *Application) render(w http.ResponseWriter, r *http.Request, t string, td *TemplateData) error {
 	parsedTemplate, err := template.ParseFiles(path.Join(PathtoTemplate, t), path.Join(PathtoTemplate, "base.layout.gohtml"))
 
 	if err != nil {
@@ -42,9 +47,14 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, t string,
 		return err
 	}
 
-	data.IP = app.ipFromContext(r.Context())
+	td.IP = app.ipFromContext(r.Context())
+	//information to pass through templates
+	//pull something from session with key error if error exists
+	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Flash = app.Session.PopString(r.Context(), "flash")
+
 	//execute template and pass the data
-	err = parsedTemplate.Execute(w, data)
+	err = parsedTemplate.Execute(w, td)
 
 	if err != nil {
 		return err
