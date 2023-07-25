@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/felicia/testing_course/webapp/pkg/db"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 type Application struct {
 	Session *scs.SessionManager
-	DB      *sql.DB
+	DB      db.PostgresConn
 	DSN     string
 }
 
