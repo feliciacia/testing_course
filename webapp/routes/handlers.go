@@ -2,7 +2,6 @@ package routes
 
 import (
 	"html/template"
-	"log"
 	"net/http"
 	"path"
 	"time"
@@ -89,13 +88,25 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-	log.Println(password, user.FirstName)
 	//authenticate
 	//if not authenticate then redirect with error
+	if !app.authenticate(r, user, password) {
+		app.Session.Put(r.Context(), "error", "Invalid login")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	//prevent fixation attack //regenerate session
 	_ = app.Session.RenewToken(r.Context())
 
 	app.Session.Put(r.Context(), "flash", "successfully log in")
 	//redirect to other page
 	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
+}
+
+func (app *Application) authenticate(r *http.Request, user *data.User, pswd string) bool {
+	if valid, err := user.PasswordMatches(pswd); err != nil || !valid {
+		return false
+	}
+	app.Session.Put(r.Context(), "user", user)
+	return true
 }
