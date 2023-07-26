@@ -5,8 +5,11 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/felicia/testing_course/webapp/pkg/db"
 )
 
 func Test_handlers(t *testing.T) {
@@ -97,4 +100,50 @@ func AddContextAndSessionToRequest(req *http.Request, app Application) *http.Req
 	req = req.WithContext(Get_Context(req))
 	ctx, _ := app.Session.Load(req.Context(), req.Header.Get("X-Session"))
 	return req.WithContext(ctx)
+}
+
+func Test_login(t *testing.T) {
+	var app Application
+	app.Session = GetSession()
+
+	conn, err := app.ConnectToDB()
+	if err != nil {
+		t.Fatalf("Error connecting to database: %s", err)
+	}
+	defer conn.Close()
+
+	// Set the application's DB field to the connected test database
+	app.DB = db.PostgresConn{DB: conn}
+
+	var tests = []struct {
+		name       string
+		postedData url.Values //handling form post to web browser
+		//url.Values for handling various value
+		expectedStatusCode int
+		expectedPage       string
+	}{
+		{
+			name: "valid login",
+			postedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {"secret"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedPage:       "/user/profile",
+		},
+	}
+	//for valid login
+	for _, e := range tests {
+		req, _ := http.NewRequest("POST", "/login", strings.NewReader(e.postedData.Encode())) //request and encoded to the format
+
+		req = AddContextAndSessionToRequest(req, app)                       //add context and the session
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded") //encodead the format as the html form data
+		rr := httptest.NewRecorder()                                        //capture the response test
+		handler := http.HandlerFunc(app.Login)                              //handler for test http request
+		handler.ServeHTTP(rr, req)                                          //send the req to handler and capture the response in rr
+
+		if rr.Code != e.expectedStatusCode {
+			t.Errorf("%s returned wrong status code: expected %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
+		}
+	}
 }

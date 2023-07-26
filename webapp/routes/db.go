@@ -18,12 +18,10 @@ func openDB(dsn string) (*sql.DB, error) {
 }
 
 func (app *Application) ConnectToDB() (*sql.DB, error) {
-	connection, err := openDB(app.DSN)
-
+	db, err := openDB(app.DSN)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Connected to Postgres")
-
-	return connection, nil
+	return db, nil
 }
