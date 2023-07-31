@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -132,6 +133,7 @@ func Test_login(t *testing.T) {
 			expectedPage:       "/user/profile",
 		},
 	}
+	appSessionManager := app.Session
 	//for valid login
 	for _, e := range tests {
 		req, _ := http.NewRequest("POST", "/login", strings.NewReader(e.postedData.Encode())) //request and encoded to the format
@@ -143,7 +145,18 @@ func Test_login(t *testing.T) {
 		handler.ServeHTTP(rr, req)                                          //send the req to handler and capture the response in rr
 
 		if rr.Code != e.expectedStatusCode {
-			t.Errorf("%s returned wrong status code: expected %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
+			t.Errorf("%s: returned wrong status code: expected %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
 		}
+
+		log.Printf("Received login request with email: %s, password: %s", e.postedData.Get("email"), e.postedData.Get("password"))
+
+		actualPage := rr.Header().Get("Location")
+		t.Log("location:", actualPage)
+
+		if actualPage != e.expectedPage {
+			t.Errorf("%s: expected location %s, but got %s", e.name, e.expectedPage, actualPage)
+		}
+		sessionData := appSessionManager.GetString(req.Context(), "test")
+		t.Logf("Retrieved session data: %v", sessionData)
 	}
 }

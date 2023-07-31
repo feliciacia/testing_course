@@ -2,6 +2,7 @@ package routes
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 	"path"
 	"time"
@@ -16,7 +17,9 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 	if app.Session.Exists(r.Context(), "test") {
 		msg := app.Session.GetString(r.Context(), "test")
 		td["test"] = msg
+		log.Printf("Retrieved session data: %s", msg)
 	} else {
+		log.Println("Session data not found")
 		app.Session.Put(r.Context(), "test", "Hit this page at"+time.Now().UTC().String())
 	}
 	templateData := &TemplateData{
@@ -24,6 +27,7 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 		Data: td,
 	}
 	_ = app.render(w, r, "home.page.gohtml", templateData)
+
 }
 
 func (app *Application) Profile(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +73,9 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	form := NewForm(r.PostForm)
 	form.Required("email", "password")
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+	log.Printf("Received login request with email: %s, password: %s", email, password)
 
 	if !form.Valid() {
 		//redirect to login page with error message
@@ -77,14 +84,11 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := r.Form.Get("email") //"email" declared at html
-
-	password := r.Form.Get("password")
-
 	user, err := app.DB.GetUserByEmail(email)
 
 	if err != nil {
 		app.Session.Put(r.Context(), "error", "Invalid login") //error message for no email
+		log.Printf("User %s not found in the database", email)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -97,14 +101,16 @@ func (app *Application) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	//prevent fixation attack //regenerate session
 	_ = app.Session.RenewToken(r.Context())
-
 	app.Session.Put(r.Context(), "flash", "successfully log in")
+	flashmsg := app.Session.GetString(r.Context(), "flash")
+	log.Printf("Flash message after setting: %s", flashmsg)
 	//redirect to other page
 	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 }
 
 func (app *Application) authenticate(r *http.Request, user *data.User, pswd string) bool {
 	if valid, err := user.PasswordMatches(pswd); err != nil || !valid {
+		log.Printf("Authentication failed for user: %s. Password matches: %v, Error: %v", user.Email, valid, err)
 		return false
 	}
 	app.Session.Put(r.Context(), "user", user)

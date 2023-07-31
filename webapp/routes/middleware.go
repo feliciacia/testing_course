@@ -3,8 +3,10 @@ package routes
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"strings"
 )
 
 type ContextKey string
@@ -17,6 +19,8 @@ func (app *Application) ipFromContext(ctx context.Context) string {
 
 func (app *Application) addIPToContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		forwardedFor := r.Header.Get("X-Forwarded-For")
+		log.Printf("X-Forwarded-For header: %s", forwardedFor)
 		var ctx = context.Background()
 		ip, err := getIP(r)
 		if err != nil {
@@ -43,10 +47,11 @@ func getIP(r *http.Request) (string, error) {
 	}
 	forward := r.Header.Get("X-Forwarded-For")
 	if len(forward) > 0 {
-		ip = forward
+		ip = strings.TrimSpace(strings.Split(forward, ",")[0])
 	}
 	if len(forward) == 0 {
 		ip = "forward"
 	}
+	log.Printf("Final IP: %s", ip)
 	return ip, nil
 }
