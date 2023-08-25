@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"flag"
 	"io"
 	"log"
 	"net/http"
@@ -47,8 +48,8 @@ func Test_Home(t *testing.T) {
 		putInSession string
 		expectedHTML string
 	}{
-		{"first visit", "", "<small>From Session ="},
-		{"second visit", "hello, world", "<small>From Session = hello, world"},
+		{"first visit", "", "<small>From Session:"},
+		{"second visit", "hello, world", "<small>From Session: hello, world"},
 	}
 	for _, e := range tests {
 		req, _ := http.NewRequest("GET", "/", nil)
@@ -106,7 +107,8 @@ func AddContextAndSessionToRequest(req *http.Request, app Application) *http.Req
 func Test_login(t *testing.T) {
 	var app Application
 	app.Session = GetSession()
-
+	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection")
+	flag.Parse() //read value where it has to be
 	conn, err := app.ConnectToDB()
 	if err != nil {
 		t.Fatalf("Error connecting to database: %s", err)
@@ -131,6 +133,42 @@ func Test_login(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusSeeOther,
 			expectedPage:       "/user/profile",
+		},
+		{
+			name: "missing form data",
+			postedData: url.Values{
+				"email":    {""},
+				"password": {""},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedPage:       "/",
+		},
+		{
+			name: "bad credentials",
+			postedData: url.Values{
+				"email":    {"you@there.com"},
+				"password": {"password"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedPage:       "/",
+		},
+		{
+			name: "user not found",
+			postedData: url.Values{
+				"email":    {"admin2@example.com"},
+				"password": {"secret"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedPage:       "/",
+		},
+		{
+			name: "bad credentials",
+			postedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {"password"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedPage:       "/",
 		},
 	}
 	appSessionManager := app.Session
@@ -159,4 +197,5 @@ func Test_login(t *testing.T) {
 		sessionData := appSessionManager.GetString(req.Context(), "test")
 		t.Logf("Retrieved session data: %v", sessionData)
 	}
+
 }
