@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"io"
 	"log"
@@ -18,26 +19,57 @@ func Test_handlers(t *testing.T) {
 
 	var app Application
 	app.Session = GetSession()
+
+	conn, _ := app.ConnectToDB()
+	app.DB = db.PostgresConn{DB: conn}
+
+	defer conn.Close()
+
+	// Set the application's DB field to the connected test database
+	app.DB = db.PostgresConn{DB: conn}
+
 	routes := app.Routes()
 	//create test server
 	ts := httptest.NewTLSServer(routes)
 	defer ts.Close()
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	} //create http transport with tls configuration disabling the verification for testing purposes
+	client := &http.Client{ //create client http to request to server
+		Transport: tr,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse //not redirecting
+		},
+	}
 	var theTest = []struct {
-		name       string
-		url        string
-		statuscode int
+		name                    string
+		url                     string
+		statuscode              int
+		expectedURL             string
+		expectedfirststatuscode int //status code after redirect
 	}{
-		{"home", "/", http.StatusOK},
-		{"404", "/notfound", http.StatusNotFound},
+		{"home", "/", http.StatusOK, "/", http.StatusOK},
+		{"404", "/notfound", http.StatusNotFound, "/notfound", http.StatusNotFound},
+		{"profile", "/user/profile", http.StatusOK, "/", http.StatusTemporaryRedirect},
 	}
 	for _, e := range theTest {
 		resp, err := ts.Client().Get(ts.URL + e.url)
+		t.Logf("Testing %s: %s", e.name, ts.URL+e.url)
 		if err != nil {
 			t.Log(err)
 			t.Fatal(err)
 		}
 		if resp.StatusCode != e.statuscode {
 			t.Errorf("for %s: expected status %d, but got %d", e.name, e.statuscode, resp.StatusCode)
+		}
+		if resp.Request.URL.Path != e.expectedURL {
+			t.Errorf("for %s: expected final url of %s but got %s", e.name, e.expectedURL, resp.Request.URL.Path)
+		}
+		t.Logf("Response status code: %d", resp.StatusCode)
+		t.Logf("Response location header: %s", resp.Header.Get("Location"))
+		resp2, _ := client.Get(ts.URL + e.url) //concatenate test server url with the expected one in order to get the construct complete url to send http request
+		if resp2.StatusCode != e.expectedfirststatuscode {
+			t.Errorf("%s: expected first returned status code to be %d but got %d", e.name, e.expectedfirststatuscode, resp2.StatusCode)
 		}
 	}
 }

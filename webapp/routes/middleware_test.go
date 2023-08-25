@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -78,8 +77,6 @@ func Test_ipfromcontext(t *testing.T) {
 func Test_auth(t *testing.T) {
 	var app Application
 	app.Session = GetSession()
-	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection")
-	flag.Parse() //read value where it has to be
 	conn, _ := app.ConnectToDB()
 	app.DB = db.PostgresConn{DB: conn}
 
