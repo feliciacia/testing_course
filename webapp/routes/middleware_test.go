@@ -2,10 +2,15 @@ package routes
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/felicia/testing_course/webapp/pkg/data"
+	"github.com/felicia/testing_course/webapp/pkg/db"
 )
 
 func Test_addIPToContext(t *testing.T) {
@@ -67,5 +72,42 @@ func Test_ipfromcontext(t *testing.T) {
 	//perform test
 	if !strings.EqualFold("go", ip) {
 		t.Error("wrong value returned from context")
+	}
+}
+
+func Test_auth(t *testing.T) {
+	var app Application
+	app.Session = GetSession()
+	flag.StringVar(&app.DSN, "dsn", "host=localhost port=5432 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5", "Postgres connection")
+	flag.Parse() //read value where it has to be
+	conn, _ := app.ConnectToDB()
+	app.DB = db.PostgresConn{DB: conn}
+
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	var tests = []struct {
+		name   string
+		isAuth bool
+	}{
+		{"logged in", true},
+		{"not logged in", false},
+	}
+	for _, e := range tests {
+
+		handlerToTest := app.auth(nextHandler)
+		req := httptest.NewRequest("GET", "http://testing", nil)
+		req = AddContextAndSessionToRequest(req, app)
+		fmt.Println("Context value:", req.Context())
+		if e.isAuth {
+			app.Session.Put(req.Context(), "user", data.User{ID: 1})
+		}
+		rr := httptest.NewRecorder()
+		handlerToTest.ServeHTTP(rr, req)
+
+		if e.isAuth && rr.Code != http.StatusOK { //authenticate but not shown ok
+			t.Errorf("%s: expected status code of 200 but got %d", e.name, rr.Code)
+		}
+		if !e.isAuth && rr.Code != http.StatusTemporaryRedirect { //not authenticate but no get back the status temporary redirect
+			t.Errorf("%s: expected status code of 307 but got %d", e.name, rr.Code)
+		}
 	}
 }
