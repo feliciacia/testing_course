@@ -55,3 +55,14 @@ func getIP(r *http.Request) (string, error) {
 	log.Printf("Final IP: %s", ip)
 	return ip, nil
 }
+
+func (app *Application) auth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !GetSession().Exists(r.Context(), "user") {
+			app.Session.Put(r.Context(), "error", "Log in first!")
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
