@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/felicia/testing_course/webapp/pkg/data"
-	"github.com/felicia/testing_course/webapp/pkg/db"
+	"github.com/felicia/testing_course/webapp/pkg/db/repository/dbrepo"
 )
 
 func Test_addIPToContext(t *testing.T) {
@@ -78,7 +78,7 @@ func Test_auth(t *testing.T) {
 	var app Application
 	app.Session = GetSession()
 	conn, _ := app.ConnectToDB()
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
 	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	var tests = []struct {

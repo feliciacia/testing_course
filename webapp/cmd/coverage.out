@@ -1,0 +1,5 @@
+mode: set
+github.com/felicia/testing_course/webapp/cmd/main.go:15.13,22.16 7 0
+github.com/felicia/testing_course/webapp/cmd/main.go:25.2,30.16 6 0
+github.com/felicia/testing_course/webapp/cmd/main.go:22.16,24.3 1 0
+github.com/felicia/testing_course/webapp/cmd/main.go:30.16,32.3 1 0

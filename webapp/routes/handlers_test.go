@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felicia/testing_course/webapp/pkg/db"
+	"github.com/felicia/testing_course/webapp/pkg/db/repository/dbrepo"
 )
 
 func Test_handlers(t *testing.T) {
@@ -21,12 +21,12 @@ func Test_handlers(t *testing.T) {
 	app.Session = GetSession()
 
 	conn, _ := app.ConnectToDB()
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
 	defer conn.Close()
 
 	// Set the application's DB field to the connected test database
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
 	routes := app.Routes()
 	//create test server
@@ -148,7 +148,7 @@ func Test_login(t *testing.T) {
 	defer conn.Close()
 
 	// Set the application's DB field to the connected test database
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
 	var tests = []struct {
 		name       string

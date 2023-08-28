@@ -1,8 +1,4 @@
 mode: set
-github.com/felicia/testing_course/webapp/routes/routes.go:18.47,26.42 7 1
-github.com/felicia/testing_course/webapp/routes/routes.go:31.2,33.12 3 1
-github.com/felicia/testing_course/webapp/routes/routes.go:26.42,29.3 2 1
-github.com/felicia/testing_course/webapp/routes/sessions.go:10.39,17.2 6 1
 github.com/felicia/testing_course/webapp/routes/db.go:12.42,14.16 2 1
 github.com/felicia/testing_course/webapp/routes/db.go:17.2,17.16 1 1
 github.com/felicia/testing_course/webapp/routes/db.go:14.16,16.3 1 0
@@ -63,6 +59,10 @@ github.com/felicia/testing_course/webapp/routes/middleware.go:45.19,47.3 1 1
 github.com/felicia/testing_course/webapp/routes/middleware.go:49.22,51.3 1 1
 github.com/felicia/testing_course/webapp/routes/middleware.go:52.23,54.3 1 1
 github.com/felicia/testing_course/webapp/routes/middleware.go:59.62,60.71 1 1
-github.com/felicia/testing_course/webapp/routes/middleware.go:60.71,62.47 2 1
-github.com/felicia/testing_course/webapp/routes/middleware.go:67.3,67.23 1 1
-github.com/felicia/testing_course/webapp/routes/middleware.go:62.47,66.4 3 1
+github.com/felicia/testing_course/webapp/routes/middleware.go:60.71,63.47 3 1
+github.com/felicia/testing_course/webapp/routes/middleware.go:68.3,69.23 2 1
+github.com/felicia/testing_course/webapp/routes/middleware.go:63.47,67.4 3 1
+github.com/felicia/testing_course/webapp/routes/routes.go:18.47,26.42 7 1
+github.com/felicia/testing_course/webapp/routes/routes.go:31.2,33.12 3 1
+github.com/felicia/testing_course/webapp/routes/routes.go:26.42,29.3 2 1
+github.com/felicia/testing_course/webapp/routes/sessions.go:10.39,17.2 6 1
