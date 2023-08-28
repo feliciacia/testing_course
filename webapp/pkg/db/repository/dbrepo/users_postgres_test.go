@@ -29,12 +29,12 @@ var testDB *sql.DB
 
 func TestMain(m *testing.M) {
 	//connect to docker
-
 	p, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("could not connect to docker; is it running?%s", err)
 	}
 	pool = p
+	fmt.Println("Initializing Docker pool...")
 	//set up docker option, specifying the image and so forth
 
 	opts := dockertest.RunOptions{
@@ -56,9 +56,10 @@ func TestMain(m *testing.M) {
 	//gets a resource (docker image)
 	resource, err := pool.RunWithOptions(&opts)
 	if err != nil {
-		_ = pool.Purge(resource)
+		//_ = pool.Purge(resource)
 		log.Fatalf("could not connect to resource: %s", err)
 	}
+	fmt.Println("Docker pool connected successfully.")
 	//start the image and wait until its ready
 	if err := pool.Retry(func() error {
 		var err error
@@ -67,11 +68,41 @@ func TestMain(m *testing.M) {
 			log.Println("Error:", err)
 			return err
 		}
+		defer testDB.Close()
 		return testDB.Ping()
 	}); err != nil {
 		_ = pool.Purge(resource)
 		log.Fatalf("could not connect to database: %s", err)
 	}
+	fmt.Println("Connection database successfully.")
+	//populate database with empty tables
+	err = createTables()
+	if err != nil {
+		log.Fatalf("error creating tables: %s", err)
+	}
+	fmt.Println("Creating table successfully.")
+	//run tests
 	code := m.Run()
+	//clean up
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("could not purge resource: %s", err)
+	}
+
 	os.Exit(code)
+}
+
+func createTables() error {
+	tableSQL, err := os.ReadFile("./testdata/users.sql")
+	if err != nil {
+		fmt.Print(err)
+		return err
+	}
+	_, err = testDB.Exec(string(tableSQL))
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }
