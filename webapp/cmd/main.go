@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/felicia/testing_course/webapp/pkg/data"
-	"github.com/felicia/testing_course/webapp/pkg/db"
+	"github.com/felicia/testing_course/webapp/pkg/db/repository/dbrepo"
 	"github.com/felicia/testing_course/webapp/routes"
 )
 
@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 	app.Session = routes.GetSession()
 	log.Println("Starting server on port 8000...")
 	err = http.ListenAndServe(":8000", app.Routes())

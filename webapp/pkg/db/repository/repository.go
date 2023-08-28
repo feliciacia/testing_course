@@ -8,9 +8,9 @@ import (
 
 type DatabaseRepo interface {
 	Connection() *sql.DB
-	AllUsers() (*[]data.User, error)
-	GetUsers(id int) (*[]data.User, error)
-	GetUserByEmail(email string) (*[]data.User, error)
+	AllUsers() ([]*data.User, error)
+	GetUser(id int) (*data.User, error)
+	GetUserByEmail(email string) (*data.User, error)
 	UpdateUser(u data.User) error
 	DeleteUser(id int) error
 	InsertUser(user data.User) (int, error)

@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/felicia/testing_course/webapp/pkg/db"
+	"github.com/felicia/testing_course/webapp/pkg/db/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 type Application struct {
 	Session *scs.SessionManager
-	DB      db.PostgresConn
+	DB      repository.DatabaseRepo
 	DSN     string
 }
 
