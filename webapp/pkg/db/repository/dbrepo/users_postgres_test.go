@@ -1,3 +1,5 @@
+//go:build integration
+
 package dbrepo
 
 import (
@@ -214,5 +216,11 @@ func Test_DBRepoDeleteUser(t *testing.T) {
 	_, err = testRepo.GetUser(2)
 	if err == nil {
 		t.Error("retrieved user id 2, which should have been deleted")
+	}
+}
+	image.UserID = 100
+	_, err = testRepo.InsertUserImage(image)
+	if err == nil {
+		t.Error("Inserted a user image with non-existent user id")
 	}
 }
