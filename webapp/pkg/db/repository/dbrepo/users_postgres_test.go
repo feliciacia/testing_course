@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/felicia/testing_course/webapp/pkg/data"
 	"github.com/felicia/testing_course/webapp/pkg/db/repository"
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
@@ -83,7 +85,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("error creating tables: %s", err)
 	}
 	fmt.Println("Creating table successfully.")
-	testRepo := &PostgresDBRepo{DB: testDB}
+	testRepo = &PostgresDBRepo{DB: testDB}
 	//run tests
 	code := m.Run()
 	//clean up
@@ -114,5 +116,24 @@ func Test_pingDB(t *testing.T) {
 	err := testDB.Ping()
 	if err != nil {
 		t.Error("can't ping database")
+	}
+}
+
+func Test_RepoInsertUser(t *testing.T) {
+	testUser := data.User{
+		FirstName: "Admin",
+		LastName:  "User",
+		Email:     "admin@example.com",
+		Password:  "secret",
+		IsAdmin:   1,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	id, err := testRepo.InsertUser(testUser)
+	if err != nil {
+		t.Errorf("Insert user returned error: %s", err)
+	}
+	if id != 1 {
+		t.Errorf("Insert user returned wrong id; expected got 1 but got %d", id)
 	}
 }
