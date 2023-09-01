@@ -166,22 +166,53 @@ func Test_DBRepoAllUsers(t *testing.T) {
 	}
 }
 
-func Test_DBRepoGetUsers(t *testing.T) {
+func Test_DBRepoGetUsers(t *testing.T) { //get user by id
 	user, err := testRepo.GetUser(1)
 	if err != nil {
 		t.Errorf("error getting users by id: %s", err)
 	}
+
 	if user.Email != "admin@example.com" {
 		t.Errorf("wrong email returned by GetUser; expected admin@example.com but got %s", user.Email)
 	}
+
+	_, _ = testRepo.GetUser(3)
+	if err == nil {
+		t.Error("no error reported when getting non-existent user by getUserid")
+	}
 }
 
-func Test_DBRepoGetUserByEmail(t *testing.T) {
+func Test_DBRepoGetUserByEmail(t *testing.T) { //get user by email
 	user, err := testRepo.GetUserByEmail("jack@smith.com")
 	if err != nil {
 		t.Errorf("error getting users by email:%s", err)
 	}
 	if user.ID != 2 {
 		t.Errorf("wrong id returned by GetUserByEmail; expected 2 but got %d", user.ID)
+	}
+}
+
+func Test_DBRepoUpdateUser(t *testing.T) {
+	user, err := testRepo.GetUser(2)
+	user.FirstName = "Jane"
+	user.Email = "jane@smith.com"
+	err = testRepo.UpdateUser(*user)
+	if err != nil {
+		t.Errorf("error updating user %d : %s", user.ID, err)
+	}
+	user, _ = testRepo.GetUser(2)
+	if user.FirstName != "Jane" || user.Email != "jane@smith.com" {
+		t.Errorf("expected got Jane and email jane@smith.com, but got %s %s", user.FirstName, user.Email)
+	}
+}
+
+func Test_DBRepoDeleteUser(t *testing.T) {
+	err := testRepo.DeleteUser(2)
+	if err != nil {
+		t.Errorf("error delete user 2: %s", err)
+	}
+	_, err = testRepo.GetUser(2)
+	if err == nil {
+		t.Error("retrieved user id 2, which should have been deleted")
 	}
 }
