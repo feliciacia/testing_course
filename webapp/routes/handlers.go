@@ -15,6 +15,7 @@ import (
 )
 
 var PathtoTemplate = "../templates/"
+var uploadPath = "./static/img"
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 	td := make(map[string]interface{})
@@ -126,16 +127,33 @@ func (app *Application) authenticate(r *http.Request, user *data.User, pswd stri
 
 func (app *Application) UploadProfilePic(w http.ResponseWriter, r *http.Request) {
 	//call a function that extracts a file from an upload
-
+	files, err := app.UploadFiles(r, uploadPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	//get the user from session
+	user := app.Session.Get(r.Context(), "user").(data.User)
 
 	//create a var from type data.UserImage
-
+	var img = data.UserImage{
+		UserID:   user.ID,
+		FileName: files[0].OriginalFileName,
+	}
 	//insert the user image into user_image
-
+	_, err = app.DB.InsertUserImage(img)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	//refresh the sessional variable "user"
-
+	updatedUser, err := app.DB.GetUser(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	app.Session.Put(r.Context(), "user", updatedUser)
 	//redirect back to profile page
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 }
 
 type UploadedFile struct {

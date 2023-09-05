@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"flag"
@@ -19,6 +20,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/felicia/testing_course/webapp/pkg/data"
 	"github.com/felicia/testing_course/webapp/pkg/db/repository/dbrepo"
 )
 
@@ -265,6 +267,7 @@ func Test_UploadImage(t *testing.T) {
 	}
 	//clean up
 	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedfiles[0].OriginalFileName))
+	wg.Wait()
 }
 
 func simulatePNGUpload(fileUpload string, writer *multipart.Writer, t *testing.T, waitgroup *sync.WaitGroup) {
@@ -292,4 +295,42 @@ func simulatePNGUpload(fileUpload string, writer *multipart.Writer, t *testing.T
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func Test_AppUploadProfilePic(t *testing.T) {
+	var app Application
+	app.Session = GetSession()
+	filePath := "./testdata/img.png"
+
+	//specify field name for the form
+	fieldname := "file"
+
+	//create a bytes.Buffer to act as the request body
+	body := new(bytes.Buffer)
+	//create a new writer
+	mw := multipart.NewWriter(body)
+	file, err := os.Open(filePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w, err := mw.CreateFormFile(fieldname, filePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = io.Copy(w, file); err != nil {
+		t.Fatal(err)
+	}
+	mw.Close()
+	req := httptest.NewRequest(http.MethodPost, "/upload", body)
+	req = AddContextAndSessionToRequest(req, app)
+	app.Session.Put(req.Context(), "user", data.User{ID: 1})
+	req.Header.Add("Content-Type", mw.FormDataContentType())
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(app.UploadProfilePic)
+	handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusSeeOther {
+		t.Errorf("wrong status code")
+	}
+	_ = os.Remove("./testdata/uploads/img.png")
 }
