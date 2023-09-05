@@ -218,6 +218,35 @@ func Test_DBRepoDeleteUser(t *testing.T) {
 		t.Error("retrieved user id 2, which should have been deleted")
 	}
 }
+
+func Test_DBRepoResetPassword(t *testing.T) {
+	err := testRepo.ResetPassword(1, "password")
+	if err != nil {
+		t.Error("error reset password ", err)
+	}
+	user, _ := testRepo.GetUser(1)
+	matches, err := user.PasswordMatches("password")
+	if err != nil {
+		t.Error("error resetting user password ", err)
+	}
+	if !matches {
+		t.Error("password should be 'password' but password not matches", err)
+	}
+}
+
+func Test_DBInsertUserImage(t *testing.T) {
+	var image data.UserImage
+	image.UserID = 1
+	image.FileName = "test.jpg"
+	image.CreatedAt = time.Now()
+	image.UpdatedAt = time.Now()
+	newID, err := testRepo.InsertUserImage(image)
+	if err != nil {
+		t.Error("inserting user image failed ", err)
+	}
+	if newID != 1 {
+		t.Errorf("got wrong id for image; should be 1, but got %d", newID)
+	}
 	image.UserID = 100
 	_, err = testRepo.InsertUserImage(image)
 	if err == nil {

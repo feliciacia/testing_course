@@ -4,12 +4,19 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
+	"image"
+	"image/png"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/felicia/testing_course/webapp/pkg/db/repository/dbrepo"
@@ -230,4 +237,59 @@ func Test_login(t *testing.T) {
 		t.Logf("Retrieved session data: %v", sessionData)
 	}
 
+}
+func Test_UploadImage(t *testing.T) {
+	var app Application
+	app.Session = GetSession()
+	//set pipes
+	pr, pw := io.Pipe()
+	//create a new writer, of *io.writer
+	writer := multipart.NewWriter(pw)
+
+	//create a waitgroup, and add 1 to it
+	wg := &sync.WaitGroup{}
+
+	wg.Add(1)
+
+	//simulate uploading a file using go routine, and our writer
+
+	go simulatePNGUpload("./testdata/img.png", writer, t, wg)
+	//read from pipe which receives data
+	request := httptest.NewRequest("POST", "/", pr)
+	request.Header.Add("Content-Type", writer.FormDataContentType())
+	//call app.UploadFiles
+	uploadedfiles, err := app.UploadFiles(request, "./testdata/uploads/")
+	//perform upload files
+	if _, err = os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedfiles[0].OriginalFileName)); os.IsNotExist(err) {
+		t.Errorf("expected file to exists: %s", err.Error())
+	}
+	//clean up
+	_ = os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedfiles[0].OriginalFileName))
+}
+
+func simulatePNGUpload(fileUpload string, writer *multipart.Writer, t *testing.T, waitgroup *sync.WaitGroup) {
+	defer writer.Close()
+	defer waitgroup.Done()
+	//create the form data filed 'file' with value being filename
+	part, err := writer.CreateFormFile("file", path.Base("fileUpload"))
+	if err != nil {
+		t.Error(err)
+	}
+	//open the file
+	f, err := os.Open(fileUpload)
+	if err != nil {
+		t.Error(err)
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		t.Error("error decoding image:", err)
+	}
+	//write the png to io writer
+
+	err = png.Encode(part, img)
+	if err != nil {
+		t.Error(err)
+	}
 }
