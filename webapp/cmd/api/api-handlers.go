@@ -3,7 +3,13 @@ package main
 import "net/http"
 
 func (app *Application) Authenticate(w http.ResponseWriter, r *http.Request) {
+	//read a json payload
 
+	//look up the user by email address
+
+	//check password
+	//generate token
+	//send token
 }
 
 func (app *Application) Refresh(w http.ResponseWriter, r *http.Request) {

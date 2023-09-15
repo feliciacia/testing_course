@@ -9,7 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-func openDB(dsn string) (*sql.DB, error) {
+func OpenDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func openDB(dsn string) (*sql.DB, error) {
 }
 
 func (app *Application) ConnectToDB() (*sql.DB, error) {
-	db, err := openDB(app.DSN)
+	db, err := OpenDB(app.DSN)
 	if err != nil {
 		return nil, err
 	}
