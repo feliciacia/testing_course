@@ -8,6 +8,7 @@ import (
 )
 
 var app Application
+var expiredToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiYXVkIjoiZXhhbXBsZS5jb20iLCJleHAiOjE2OTQ3NDg0MDQsImlzcyI6ImV4YW1wbGUuY29tIiwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMSJ9.D6PThteaRO5N5WysXbOe1q2DMs_xboEoG51sVetRLHo"
 
 func TestMain(m *testing.M) {
 	app.DB = &dbrepo.TestDBRepo{}
