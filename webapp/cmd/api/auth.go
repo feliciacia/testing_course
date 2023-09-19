@@ -96,4 +96,14 @@ func (app *Application) GenerateTokenPair(user *data.User) (TokenPairs, error) {
 	refreshTokenClaims["sub"] = fmt.Sprint(user.ID)
 	//set expiry, must be longer than jwt expiry
 	refreshTokenClaims["exp"] = time.Now().Add(refreshTokenExpiry).Unix()
+	//create signed refresh token
+	signedRefreshToken, err := refreshToken.SignedString([]byte(app.JWTSecret))
+	if err != nil {
+		return TokenPairs{}, err
+	}
+	var tokenpairs = TokenPairs{
+		Token:        signedAccessToken,
+		RefreshToken: signedRefreshToken,
+	}
+	return tokenpairs, nil
 }
