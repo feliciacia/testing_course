@@ -14,6 +14,14 @@ github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:53.74,55.2 0 0
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:57.77,59.2 0 0
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:61.77,63.2 0 0
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:65.77,67.2 0 0
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:5.68,6.71 1 1
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:6.71,8.28 2 1
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:8.28,13.4 4 1
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:13.9,15.4 1 1
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:19.70,20.71 1 0
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:20.71,22.17 2 0
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:26.3,27.9 2 0
+github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:22.17,25.4 2 0
 github.com/felicia/testing_course/webapp/cmd/api/auth.go:27.109,34.22 3 1
 github.com/felicia/testing_course/webapp/cmd/api/auth.go:39.2,40.27 2 1
 github.com/felicia/testing_course/webapp/cmd/api/auth.go:44.2,44.32 1 1
