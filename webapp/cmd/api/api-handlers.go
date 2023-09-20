@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/felicia/testing_course/webapp/pkg/data"
+	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -95,15 +97,41 @@ func (app *Application) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) AllUsers(w http.ResponseWriter, r *http.Request) {
-
+	users, err := app.DB.AllUsers()
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	_ = app.writeJSON(w, http.StatusOK, users)
 }
 
 func (app *Application) GetUser(w http.ResponseWriter, r *http.Request) {
-
+	userID, err := strconv.Atoi(chi.URLParam(r, "UserID"))
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	user, err := app.DB.GetUser(userID)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	_ = app.writeJSON(w, http.StatusOK, user)
 }
 
 func (app *Application) UpdateUser(w http.ResponseWriter, r *http.Request) {
-
+	var user data.User
+	err := app.readJSON(w, r, &user)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	err = app.DB.UpdateUser(user)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent) //done update and no response body
 }
 
 func (app *Application) DeleteUser(w http.ResponseWriter, r *http.Request) {
