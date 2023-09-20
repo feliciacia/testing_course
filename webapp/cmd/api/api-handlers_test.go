@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/felicia/testing_course/webapp/pkg/data"
+	"github.com/go-chi/chi"
 )
 
 func Test_app_authenticate(t *testing.T) {
@@ -80,5 +82,40 @@ func Test_app_refreshToken(t *testing.T) {
 			t.Errorf("%s: expected status of %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
 		}
 		refreshTokenExpiry = oldRefreshTime
+	}
+}
+
+func Test_app_userHandler(t *testing.T) {
+	var tests = []struct {
+		name           string
+		method         string
+		json           string
+		paramID        string
+		handler        http.HandlerFunc
+		expectedStatus int
+	}{
+		{"AllUsers", "GET", "", "", app.AllUsers, http.StatusOK},
+		{"deleteUsers", "DELETE", "", "1", app.DeleteUser, http.StatusNoContent},
+		{"getUsers valid", "GET", "", "1", app.GetUser, http.StatusOK},
+		{"getUsers invalid", "GET", "", "100", app.GetUser, http.StatusBadRequest},
+	}
+	for _, e := range tests {
+		var req *http.Request
+		if e.json == "" {
+			req, _ = http.NewRequest(e.method, "/", nil)
+		} else {
+			req, _ = http.NewRequest(e.method, "/", strings.NewReader(e.json))
+		}
+		if e.paramID == "" {
+			chiCtx := chi.NewRouteContext()
+			chiCtx.URLParams.Add("UserID", e.paramID)
+			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+		}
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(e.handler)
+		handler.ServeHTTP(rr, req)
+		if rr.Code != e.expectedStatus {
+			t.Errorf("%s: wrong status returned; expected %d, but got %d", e.name, e.expectedStatus, rr.Code)
+		}
 	}
 }

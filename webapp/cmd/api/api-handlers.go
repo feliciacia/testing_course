@@ -135,9 +135,30 @@ func (app *Application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) DeleteUser(w http.ResponseWriter, r *http.Request) {
-
+	userID, err := strconv.Atoi(chi.URLParam(r, "UserID"))
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	err = app.DB.DeleteUser(userID)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (app *Application) InsertUser(w http.ResponseWriter, r *http.Request) {
-
+	var user data.User
+	err := app.readJSON(w, r, &user)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	_, err = app.DB.InsertUser(user)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

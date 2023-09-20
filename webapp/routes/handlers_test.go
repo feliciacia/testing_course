@@ -334,3 +334,4 @@ func Test_AppUploadProfilePic(t *testing.T) {
 	}
 	_ = os.Remove("./testdata/uploads/img.png")
 }
+
