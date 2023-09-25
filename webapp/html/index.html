@@ -116,23 +116,21 @@
             method: "GET",
             credentials: "include",  
         }
-        fetch(`/web/refresh-token`, requestOptions) {
-            .then((response) => response.json())
-            .then((data)=> {
-                if (data.access_token) {
-                    access_token = data.access_token
-                    refresh_token = dat.refresh_token
-                    setUI(true);
-                } else {
-                    setUI(false);
-                }
-            })
+        fetch(`/web/refresh-token`, requestOptions)
+        .then((response) => response.json())
+        .then((data)=> {
+            if (data.access_token) {
+                access_token = data.access_token;               
+                refresh_token = data.refresh_token;
+                setUI(true);
+            } else {
+                setUI(false);
+            }
+        })
             .catch(error=> {
-               console.log("user is not logged in");
-            }) 
-        }
+            console.log("user is not logged in");
+        }) 
     }
-
     function setUI(loggedIn) {
         if (loggedIn) {
             tokensDiv.classList.remove("d-none");

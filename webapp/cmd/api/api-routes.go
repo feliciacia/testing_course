@@ -17,6 +17,7 @@ func (app *Application) Routes() http.Handler {
 	cr.Route("/web", func(r chi.Router) {
 		r.Post("/auth", app.Authenticate)
 		// /refresh token
+		r.Get("/refresh-token", app.RefreshUsingCookie)
 		// /logout
 	})
 	//authentication routes - auth handler, refresh
