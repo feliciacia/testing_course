@@ -8,22 +8,22 @@ import (
 )
 
 func (app *Application) Routes() http.Handler {
-	mux := chi.NewRouter()
+	cr := chi.NewRouter()
 	//register middleware
-	mux.Use(middleware.Recoverer)
-	mux.Use(app.enableCORS)
+	cr.Use(middleware.Recoverer)
+	cr.Use(app.enableCORS)
 	//authentication routes - auth handler, refresh
-	mux.Post("/auth", app.Authenticate)
-	mux.Post("/refresh-token", app.Refresh)
+	cr.Post("/auth", app.Authenticate)
+	cr.Post("/refresh-token", app.Refresh)
 
-	mux.Route("/users", func(mux chi.Router) {
+	cr.Route("/users", func(ur chi.Router) {
 		//use auth middleware
-		mux.Use(app.authRequired)
-		mux.Get("/", app.AllUsers)
-		mux.Get("/{UserID}", app.GetUser)
-		mux.Delete("/{UserID}", app.DeleteUser)
-		mux.Put("/", app.InsertUser)
-		mux.Patch("/", app.UpdateUser)
+		ur.Use(app.authRequired)
+		ur.Get("/", app.AllUsers)
+		ur.Get("/{UserID}", app.GetUser)
+		ur.Delete("/{UserID}", app.DeleteUser)
+		ur.Put("/", app.InsertUser)
+		ur.Patch("/", app.UpdateUser)
 	})
-	return mux
+	return cr
 }

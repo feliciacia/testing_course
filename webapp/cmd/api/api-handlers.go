@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -100,20 +101,27 @@ func (app *Application) AllUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := app.DB.AllUsers()
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Printf("Error in AllUsers handler: %v\n", err)
 		return
 	}
 	_ = app.writeJSON(w, http.StatusOK, users)
 }
 
 func (app *Application) GetUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.Atoi(chi.URLParam(r, "UserID"))
+	userIDParam := chi.URLParam(r, "UserID")
+	fmt.Printf("UserID from URL: %s\n", userIDParam)
+
+	userID, err := strconv.Atoi(userIDParam)
+	fmt.Printf("UserID: %d", userID)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Printf("Error converting UserID to int: %v\n", err)
 		return
 	}
 	user, err := app.DB.GetUser(userID)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Printf("Error fetching user by ID: %v\n", err)
 		return
 	}
 	_ = app.writeJSON(w, http.StatusOK, user)
@@ -135,14 +143,20 @@ func (app *Application) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	userID, err := strconv.Atoi(chi.URLParam(r, "UserID"))
+	userIDParam := chi.URLParam(r, "UserID")
+	fmt.Printf("UserID from URL: %s\n", userIDParam)
+
+	userID, err := strconv.Atoi(userIDParam)
+	fmt.Printf("UserID: %d\n", userID)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Println("cant convert")
 		return
 	}
 	err = app.DB.DeleteUser(userID)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Println("cant delete")
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -153,9 +167,11 @@ func (app *Application) InsertUser(w http.ResponseWriter, r *http.Request) {
 	err := app.readJSON(w, r, &user)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
+		fmt.Printf("Error reading JSON: %v\n", err)
 		return
 	}
 	_, err = app.DB.InsertUser(user)
+	fmt.Printf("Request Body: %+v\n", user)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -78,6 +80,7 @@ func Test_app_refreshToken(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(app.Refresh)
 		handler.ServeHTTP(rr, req)
+
 		if rr.Code != e.expectedStatusCode {
 			t.Errorf("%s: expected status of %d, but got %d", e.name, e.expectedStatusCode, rr.Code)
 		}
@@ -96,24 +99,95 @@ func Test_app_userHandler(t *testing.T) {
 	}{
 		{"AllUsers", "GET", "", "", app.AllUsers, http.StatusOK},
 		{"deleteUsers", "DELETE", "", "1", app.DeleteUser, http.StatusNoContent},
+		{"deleteUsers bad URL param", "DELETE", "", "Y", app.DeleteUser, http.StatusBadRequest},
 		{"getUsers valid", "GET", "", "1", app.GetUser, http.StatusOK},
-		{"getUsers invalid", "GET", "", "100", app.GetUser, http.StatusBadRequest},
+		{"getUsers bad URL param", "GET", "", "Y", app.GetUser, http.StatusBadRequest},
+		{
+			"updateUser valid",
+			"PATCH",
+			`{"id":1, "first_name":"Administrator", "last_name":"User", "email":"admin@example.com"}`,
+			"",
+			app.UpdateUser,
+			http.StatusNoContent,
+		},
+		{
+			"updateUser invalid",
+			"PATCH",
+			`{"id:100, "first_name":"Administrator", "last_name":"User", "email":"admin@example.com"}`,
+			"",
+			app.UpdateUser,
+			http.StatusBadRequest,
+		},
+		{
+			"updateUser invalid json",
+			"PATCH",
+			`{"id":1, first_name:"Administrator", "last_name":"User","email":"admin@example.com"}`,
+			"",
+			app.UpdateUser,
+			http.StatusBadRequest,
+		},
+		{
+			"insertUser valid",
+			"PUT",
+			`{"first_name":"Jack", "last_name":"Smith", "email":"jack@example.com"}`,
+			"",
+			app.InsertUser,
+			http.StatusNoContent,
+		},
+		{
+			"insertUser invalid",
+			"PUT",
+			`{"foo":"bar","first_name":"Jack", "last_name":"Smith", "email":"jack@example.com"}`,
+			"",
+			app.InsertUser,
+			http.StatusBadRequest,
+		},
+		{
+			"insertUser invalid json",
+			"PUT",
+			`{"first_name:"Jack", "last_name":"Smith", "email":"jack@example.com"}`,
+			"",
+			app.InsertUser,
+			http.StatusBadRequest,
+		},
 	}
 	for _, e := range tests {
+		chiCtx := chi.NewRouteContext()
+		chiCtx.URLParams.Add("UserID", e.paramID)
+
 		var req *http.Request
+
 		if e.json == "" {
-			req, _ = http.NewRequest(e.method, "/", nil)
+			req, _ = http.NewRequest(e.method, fmt.Sprintf("/users/%s", e.paramID), nil)
 		} else {
-			req, _ = http.NewRequest(e.method, "/", strings.NewReader(e.json))
+			req, _ = http.NewRequest(e.method, fmt.Sprintf("/users/%s", e.paramID), strings.NewReader(e.json))
 		}
-		if e.paramID == "" {
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(e.handler)
+		handler.ServeHTTP(rr, req)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+		log.Printf("Test case: %s, Method: %s, URL: %s", e.name, e.method, req.URL.String())
+		if e.json != "" {
+			log.Printf("Request Body:\n%s", e.json)
+		}
+
+		if e.paramID != "" {
 			chiCtx := chi.NewRouteContext()
 			chiCtx.URLParams.Add("UserID", e.paramID)
 			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
 		}
-		rr := httptest.NewRecorder()
-		handler := http.HandlerFunc(e.handler)
+		log.Printf("ParamID set to: %s", e.paramID)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+
+		rr = httptest.NewRecorder()
+		handler = http.HandlerFunc(e.handler)
 		handler.ServeHTTP(rr, req)
+		responseString := rr.Body.String()
+		if responseString != "" {
+			log.Printf("Response Body:\n%s", responseString)
+		}
+		log.Printf("Response Status Code: %d", rr.Code)
 		if rr.Code != e.expectedStatus {
 			t.Errorf("%s: wrong status returned; expected %d, but got %d", e.name, e.expectedStatus, rr.Code)
 		}
