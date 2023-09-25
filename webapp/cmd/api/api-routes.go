@@ -12,6 +12,13 @@ func (app *Application) Routes() http.Handler {
 	//register middleware
 	cr.Use(middleware.Recoverer)
 	cr.Use(app.enableCORS)
+	cr.Handle("/", http.StripPrefix("/", http.FileServer((http.Dir("./html/")))))
+
+	cr.Route("/web", func(r chi.Router) {
+		r.Post("/auth", app.Authenticate)
+		// /refresh token
+		// /logout
+	})
 	//authentication routes - auth handler, refresh
 	cr.Post("/auth", app.Authenticate)
 	cr.Post("/refresh-token", app.Refresh)
