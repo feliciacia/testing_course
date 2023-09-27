@@ -19,6 +19,7 @@ func (app *Application) Routes() http.Handler {
 		// /refresh token
 		r.Get("/refresh-token", app.RefreshUsingCookie)
 		// /logout
+		r.Get("/logout", app.deleteRefreshCookie)
 	})
 	//authentication routes - auth handler, refresh
 	cr.Post("/auth", app.Authenticate)

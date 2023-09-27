@@ -129,48 +129,48 @@
             })
     })
 
-    userBtn.addEventListener("click", function() {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Authorization", "Bearer " + access_token);
+   userBtn.addEventListener("click", function() {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json")
+    myHeaders.append("Authorization", "Bearer "+ access_token);
 
-        const requestOptions = {
-            method: "GET",
-            headers: myHeaders,
-        }
-
-        fetch("/users/1", requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data) {
-                    userOutput.innerHTML = JSON.stringify(data, undefined, 4);
-                }
-            })
-            .catch(err => {
-                userOutput.innerHTML = "Log in first!";
-            })
-    })
-
-    userBtn.addEventListener("click", function()) {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json")
-        myHeaders.append("Authorization", "Bearer "+ access_token);
-
-        const requestOptions = {
-            method : "GET",
-            headers: myHeaders,
-        }
-        fetch("/users/1", requestOptions)
-            .then((response) => response.json())
-            .then((data)) => {
-                if (data) {
-                    userOutput.innerHTML = JSON.stringify(data, undefined, 4);
-                }
-            })
-            .catch(err => {
-                userOutput.innerHTML = "Log in first!"; 
-            })
+    const requestOptions = {
+        method : "GET",
+        headers: myHeaders,
     }
+    fetch("/users/1", requestOptions)
+        .then((response) => response.json())
+        .then((data) => { // Corrected syntax
+            if (data) {
+                userOutput.innerHTML = JSON.stringify(data, undefined, 4);
+            }
+        })
+        .catch(err => {
+            userOutput.innerHTML = "Log in first!"; 
+        })
+})
+
+userBtn.addEventListener("click", function() { 
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json")
+    myHeaders.append("Authorization", "Bearer "+ access_token);
+
+    const requestOptions = {
+        method : "GET",
+        headers: myHeaders,
+    }
+    fetch("/users/1", requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data) {
+                userOutput.innerHTML = JSON.stringify(data, undefined, 4);
+            }
+        })
+        .catch(err => {
+            userOutput.innerHTML = "Log in first!"; 
+        })
+})
+
 
     function refreshTokens() {
         // we'll send a get request which includes the __Host-refresh-tokien cookie if it exists
@@ -213,6 +213,19 @@
             refreshTokenDisplay.innerHTML = "No refresh token!";
         }
     }
+
+    logoutBtn.addEventListener("click", function() {
+        access_token = "";
+        refresh_token = "";
+
+        fetch("/web/logout", {method: "GET"})
+        .then(response => {
+            setUI(false);
+        })
+        .catch(error => {
+            userOutput.innerHTML = error;
+        })
+    })
 
 </script>
 
