@@ -1,8 +1,4 @@
 mode: set
-github.com/felicia/testing_course/webapp/cmd/api/main.go:21.13,28.16 7 0
-github.com/felicia/testing_course/webapp/cmd/api/main.go:31.2,38.16 5 0
-github.com/felicia/testing_course/webapp/cmd/api/main.go:28.16,30.3 1 0
-github.com/felicia/testing_course/webapp/cmd/api/main.go:38.16,40.3 1 0
 github.com/felicia/testing_course/webapp/cmd/api/utilities.go:10.110,15.19 2 1
 github.com/felicia/testing_course/webapp/cmd/api/utilities.go:34.2,39.16 4 1
 github.com/felicia/testing_course/webapp/cmd/api/utilities.go:42.2,42.12 1 1
@@ -82,7 +78,7 @@ github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:236.2,238.16 3 
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:242.2,242.37 1 1
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:231.16,235.3 3 1
 github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:238.16,241.3 2 0
-github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:245.85,259.2 3 0
+github.com/felicia/testing_course/webapp/cmd/api/api-handlers.go:245.85,259.2 3 1
 github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:5.68,6.71 1 1
 github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:6.71,8.28 2 1
 github.com/felicia/testing_course/webapp/cmd/api/api-middleware.go:8.28,13.4 4 1
@@ -129,3 +125,7 @@ github.com/felicia/testing_course/webapp/cmd/api/db.go:18.16,20.3 1 0
 github.com/felicia/testing_course/webapp/cmd/api/db.go:24.56,26.16 2 0
 github.com/felicia/testing_course/webapp/cmd/api/db.go:29.2,30.16 2 0
 github.com/felicia/testing_course/webapp/cmd/api/db.go:26.16,28.3 1 0
+github.com/felicia/testing_course/webapp/cmd/api/main.go:21.13,28.16 7 0
+github.com/felicia/testing_course/webapp/cmd/api/main.go:31.2,38.16 5 0
+github.com/felicia/testing_course/webapp/cmd/api/main.go:28.16,30.3 1 0
+github.com/felicia/testing_course/webapp/cmd/api/main.go:38.16,40.3 1 0
