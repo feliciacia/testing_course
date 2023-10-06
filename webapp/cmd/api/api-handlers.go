@@ -9,7 +9,6 @@ import (
 
 	"github.com/felicia/testing_course/webapp/pkg/data"
 	"github.com/go-chi/chi/v5"
-
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
