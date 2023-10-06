@@ -21,9 +21,9 @@ jobs:
 
     - name: Build
       run: |
-      echo "Starting the build process..."
-      go build -v ./...
-      echo "Build completed."
+        echo "Starting the build process..."
+        go build -v ./...
+        echo "Build completed."
 
     - name: Test
       run : |
